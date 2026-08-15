@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- DATOS DEL PROYECTO (IGNORADOS PARA EVITAR SUBIR ARCHIVOS GRANDES) ---
+data/
