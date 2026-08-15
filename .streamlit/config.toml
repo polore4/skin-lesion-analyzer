@@ -1,0 +1,18 @@
+[theme]
+# Tema base oscuro (le da un toque muy pro a las apps de IA)
+base="dark"
+
+# El color principal para botones y barras de carga (Teal tecnológico)
+primaryColor="#56a996"
+
+# El color del fondo de la aplicación (Gris muy oscuro, casi negro)
+backgroundColor="#222e31"
+
+# El color del fondo del menú lateral
+secondaryBackgroundColor="#394346"
+
+# Color del texto (Gris claro/blanco)
+textColor="#EEEEEE"
+
+# Fuente limpia y moderna
+font="sans serif"
