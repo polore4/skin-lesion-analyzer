@@ -139,7 +139,7 @@ div[data-testid="stLayoutWrapper"]:has(.mi-tarjeta) {
 /* 3. Apuntamos al div stVerticalBlock para quitar el borde y ajustar el padding a 10px */
 div[data-testid="stVerticalBlock"]:has(.mi-tarjeta) {
     border: none !important;
-    padding: 10px !important;
+    padding: 20px !important;
 }
 
 /* 4. Zona de subir archivo con el color de fondo de la app (#222e31) */
