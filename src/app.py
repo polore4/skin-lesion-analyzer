@@ -6,10 +6,15 @@ from PIL import Image
 import torch.nn.functional as F
 import base64
 import os
-import io  # <-- NUEVO: Necesario para leer la imagen desde la memoria
+import io
 
 # 1. Configuración de la página
-st.set_page_config(page_title="AI Skin Lesion Analyzer | Pol Orellana", page_icon="🔬", layout="wide")
+st.set_page_config(
+    page_title="AI Skin Lesion Analyzer | Pol Orellana", 
+    page_icon="🔬", 
+    layout="wide",
+    initial_sidebar_state="expanded" # Aseguramos que siempre inicie abierto
+)
 
 # --- DICCIONARIO DE TRADUCCIONES ---
 TRANSLATIONS = {
@@ -17,19 +22,20 @@ TRANSLATIONS = {
         "about_me": "## Sobre Mí",
         "desc": "**Pol Orellana Méndez**\n\n*Estudiante de Inteligencia Artificial en la Universidad Autónoma de Barcelona*\n\nApasionado por el Machine Learning, la Visión Artificial y el desarrollo de soluciones tecnológicas con impacto real.",
         "rights": "© 2026 Pol Orellana. Todos los derechos reservados.",
-        "title": "🔬 Analizador de lesiones cutáneas con IA",
+        "title": "Analizador de lesiones cutáneas con IA",
         "subtitle": "Sube una imagen dermatoscópica para analizar el riesgo de la lesión.",
         "warning": "⚠️ **Aviso Médico:** Esta aplicación es un proyecto de demostración de IA y no sustituye el diagnóstico de un dermatólogo profesional.",
+        "privacy": "🔒 **Privacidad:** Las imágenes se procesan temporalmente en la memoria del servidor y **no se guardan** ni se utilizan para reentrenar el modelo. Se eliminan automáticamente al cerrar la página.",
         "upload": "Selecciona una imagen...",
         "caption": "Imagen a analizar",
         "btn_analyze": "Analizar Lesión",
-        "btn_change": "Cambiar imagen", # <-- NUEVA TRADUCCIÓN
+        "btn_change": "Cambiar imagen",
         "spinner": "La IA está analizando las texturas...",
         "result": "### Resultado",
         "diag": "**Diagnóstico:**",
         "conf": "**Confianza de la IA:**",
         "error_model": "No se ha encontrado el archivo del modelo. Asegúrate de haberlo entrenado.",
-        "explanation_title": "📖 ¿Cómo funciona?",
+        "explanation_title": "¿Cómo funciona?",
         "explanation_text": """
         **1. Sube tu imagen**  
         Utiliza el recuadro de la izquierda para arrastrar y soltar una imagen dermatoscópica (un lunar o mancha).
@@ -54,19 +60,20 @@ TRANSLATIONS = {
         "about_me": "## Sobre Mi",
         "desc": "**Pol Orellana Méndez**\n\n*Estudiant d'Intel·ligència Artificial a la Universitat Autònoma de Barcelona*\n\nApassionat pel Machine Learning, la Visió Artificial i el desenvolupament de solucions tecnològiques amb impacte real.",
         "rights": "© 2026 Pol Orellana. Tots els drets reservats.",
-        "title": "🔬 Analitzador de lesions cutànies per IA",
+        "title": "Analitzador de lesions cutànies per IA",
         "subtitle": "Puja una imatge dermatoscòpica per analitzar el risc de la lesió.",
         "warning": "⚠️ **Avís Mèdic:** Aquesta aplicació és un projecte de demostració d'IA i no substitueix el diagnòstic d'un dermatòleg professional.",
+        "privacy": "🔒 **Privacitat:** Les imatges es processen temporalment a la memòria del servidor i **no es guarden** ni s'utilitzen per reentrenar el model. S'eliminen automàticament en tancar la pàgina.",
         "upload": "Selecciona una imatge...",
         "caption": "Imatge a analitzar",
         "btn_analyze": "Analitzar Lesió",
-        "btn_change": "Canviar imatge", # <-- NUEVA TRADUCCIÓN
+        "btn_change": "Canviar imatge",
         "spinner": "La IA està analitzant les textures...",
         "result": "### Resultat",
         "diag": "**Diagnòstic:**",
         "conf": "**Confiança de la IA:**",
         "error_model": "No s'ha trobat l'arxiu del model. Assegura't d'haver-lo entrenat.",
-        "explanation_title": "📖 Com funciona?",
+        "explanation_title": "Com funciona?",
         "explanation_text": """
         **1. Puja la teva imatge**  
         Utilitza el requadre de l'esquerra per arrossegar i deixar anar una imatge dermatoscòpica (una piga o taca).
@@ -91,19 +98,20 @@ TRANSLATIONS = {
         "about_me": "## About Me",
         "desc": "**Pol Orellana Méndez**\n\n*Artificial Intelligence Student at Autonomous University of Barcelona*\n\nPassionate about Machine Learning, Computer Vision, and developing technological solutions with real impact.",
         "rights": "© 2026 Pol Orellana. All rights reserved.",
-        "title": "🔬 AI Skin Lesion Analyzer",
+        "title": "AI Skin Lesion Analyzer",
         "subtitle": "Upload a dermatoscopic image to analyze the lesion's risk.",
         "warning": "⚠️ **Medical Disclaimer:** This application is an AI demonstration project and does not replace a professional dermatologist's diagnosis.",
+        "privacy": "🔒 **Privacy:** Images are processed temporarily in the server's memory and are **not saved** or used to retrain the model. They are automatically deleted when you close the page.",
         "upload": "Select an image...",
         "caption": "Image to analyze",
         "btn_analyze": "Analyze Lesion",
-        "btn_change": "Change image", # <-- NUEVA TRADUCCIÓN
+        "btn_change": "Change image",
         "spinner": "The AI is analyzing textures...",
         "result": "### Result",
         "diag": "**Diagnosis:**",
         "conf": "**AI Confidence:**",
         "error_model": "Model file not found. Make sure you have trained it.",
-        "explanation_title": "📖 How it works?",
+        "explanation_title": "How it works?",
         "explanation_text": """
         **1. Upload your image**  
         Use the box on the left to drag and drop a dermatoscopic image (a mole or spot).
@@ -138,7 +146,7 @@ img_perfil = get_base64_of_bin_file("data/perfil.png")
 img_linkedin = get_base64_of_bin_file("data/linkedin.png")
 img_github = get_base64_of_bin_file("data/github.png")
 
-# --- INYECCIÓN DE CSS (CENTRALIZADO Y MEJORADO) ---
+# --- INYECCIÓN DE CSS ---
 st.markdown("""
 <style>
 /* 1. COMPACTAR SIDEBAR PARA ELIMINAR EL SCROLL */
@@ -180,11 +188,15 @@ div[data-testid="stVerticalBlock"]:has(.mi-tarjeta) { border: none !important; p
 [data-testid="stFileUploaderDropzone"] svg { color: #56a996 !important; width: 50px !important; height: 50px !important; margin-bottom: 10px; }
 [data-testid="stFileUploaderDropzone"] button { background-color: #56a996 !important; color: white !important; border: none !important; border-radius: 8px !important; padding: 0.5rem 1.5rem !important; font-weight: bold !important; }
 [data-testid="stFileUploaderDropzone"] button:hover { background-color: #458778 !important; }
+
+/* 4. BLOQUEAR EL SIDEBAR (No se puede ocultar) */
+[data-testid="collapsedControl"] { display: none !important; }
+[data-testid="stSidebarCollapseButton"] { display: none !important; }
 </style>
 """, unsafe_allow_html=True)
 
 
-# --- MARCA PERSONAL: Menú Lateral con HTML/CSS ---
+# --- Menú Lateral con HTML/CSS ---
 with st.sidebar:
     lang_choice = st.selectbox("🌐 Idioma / Language", ["🇪🇸 Español", "🇦🇩 Català", "🇬🇧 English"])
     t = TRANSLATIONS[lang_choice]
@@ -228,7 +240,6 @@ with st.sidebar:
     )
     st.markdown("---")
     st.caption(t["rights"])
-# ------------------------------------
 
 class_names = ['akiec', 'bcc', 'bkl', 'df', 'mel', 'nv', 'vasc']
 
@@ -329,3 +340,5 @@ with st.container(border=True):
                     
                 st.info(f"{t['conf']} {confidence_percentage:.2f}%")
                 st.progress(int(confidence_percentage))
+                
+st.info(t["privacy"])
